@@ -1,17 +1,24 @@
 import re
-from subprocess import check_output
+import subprocess
 from typing import Iterable
 
 
 class Pacman(object):
     @property
     def foreign_packages(self):
-        for line in check_output(["pacman", "-Qm"]).decode("utf-8").splitlines():
-            yield re.search("([^ ]+)", line).group(1)
+        yield from self._query_pacman("m")
 
     @property
     def installed_packages(self) -> Iterable[str]:
-        for line in check_output(["pacman", "-Qe"]).decode("utf-8").splitlines():
+        yield from self._query_pacman("e")
+
+    def _query_pacman(self, flags: str, root: bool = False):
+        pacman_cmd = [*(["sudo"] if root else []), "pacman", f"-Q{flags}"]
+        for line in (
+            subprocess.run(pacman_cmd, capture_output=True, check=True)
+            .stdout.decode("utf-8")
+            .splitlines()
+        ):
             yield re.search("([^ ]+)", line).group(1)
 
 
