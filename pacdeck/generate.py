@@ -7,6 +7,7 @@ from typing import Optional
 
 from pacdeck.config import GlobalArgs
 from pacdeck.pacman import pacman
+from pacdeck.run_privileged import run_privileged
 
 
 def generate(
@@ -33,5 +34,4 @@ def generate(
         return
     with NamedTemporaryFile(mode="w") as tmp:
         tmp.write(json.dumps(conf, indent=4, sort_keys=True))
-        subprocess.run(["sudo", "cp", tmp.name, global_args.config_path], check=True)
-        subprocess.run(["sudo", "chmod", "644", global_args.config_path], check=True)
+        run_privileged("install_config.py", tmp.name, global_args.config_path)
