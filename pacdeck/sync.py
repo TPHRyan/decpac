@@ -49,7 +49,14 @@ def sync(global_args: GlobalArgs):
             add_args = conf.get(command) or command_default
             _type_add, type_add = type_add, []
             for package in _type_add:
-                if subprocess.run(["pacman", "-Q", package]).returncode != 0:
+                if (
+                    subprocess.run(
+                        ["pacman", "-Q", package],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    ).returncode
+                    != 0
+                ):
                     type_add.append(package)
                 else:
                     mark.append(package)
@@ -82,5 +89,4 @@ def sync(global_args: GlobalArgs):
         )
     else:
         print("No packages to remove.")
-
     print("Done")
